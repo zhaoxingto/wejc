@@ -28,6 +28,22 @@ class MerchantChannelProductRead(BaseModel):
     sku_count: int
 
 
+class MerchantSourceProductRead(BaseModel):
+    id: int
+    integration_id: int | None
+    source_product_id: str
+    source_type: str
+    sku_mode: str
+    name: str
+    description: str | None
+    sync_status: str
+    last_sync_at: datetime | None
+    published: bool
+    channel_product_id: int | None
+    channel_product_title: str | None
+    channel_product_status: str | None
+
+
 class MerchantSpecValueRead(BaseModel):
     id: int
     value: str
@@ -56,6 +72,19 @@ class MerchantChannelProductUpdateRequest(BaseModel):
     sort_no: int | None = None
     album_json: list | None = None
     category_id: int | None = None
+
+
+class MerchantPublishSourceProductRequest(BaseModel):
+    title: str | None = Field(default=None, max_length=255)
+    subtitle: str | None = Field(default=None, max_length=255)
+    status: str = Field(default="draft", max_length=32)
+
+
+class MerchantImageUploadRead(BaseModel):
+    url: str
+    filename: str
+    content_type: str
+    size: int
 
 
 class MerchantSkuRead(BaseModel):

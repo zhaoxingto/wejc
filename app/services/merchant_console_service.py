@@ -4,17 +4,19 @@ import httpx
 from sqlalchemy.orm import Session
 
 from app.core.context import RequestContext
-from app.core.exceptions import ChannelProductNotFound, IntegrationNotFound, SkuNotFound
-from app.models.product import ProductSku
+from app.core.exceptions import ChannelProductNotFound, IntegrationNotFound, SkuNotFound, SourceProductNotFound
+from app.models.product import ChannelProduct, ProductSku
 from app.repositories.integration_repo import IntegrationRepository
 from app.repositories.product_repo import ProductRepository
 from app.repositories.shop_repo import ShopRepository
 from app.schemas.merchant import (
     MerchantChannelProductDetailRead,
+    MerchantPublishSourceProductRequest,
     MerchantChannelProductRead,
     MerchantChannelProductUpdateRequest,
     MerchantIntegrationRead,
     MerchantIntegrationTestRead,
+    MerchantSourceProductRead,
     MerchantIntegrationUpdateRequest,
     MerchantSkuCreateRequest,
     MerchantSkuRead,
@@ -39,6 +41,69 @@ class MerchantConsoleService:
         self.integration_repository = integration_repository
         self.shop_repository = shop_repository
         self.integration_service = integration_service
+
+    def list_source_products(self, context: RequestContext) -> list[MerchantSourceProductRead]:
+        integration = self._resolve_store_integration(context)
+        source_products = self.product_repository.list_source_products(integration.tenant_id, integration.id)
+        if not source_products:
+            source_products = self.product_repository.list_source_products(integration.tenant_id, None)
+        channel_products = self.product_repository.list_channel_products(context.tenant_id, context.shop_id)
+        published_by_source = {
+            product.source_product_id: product for product in channel_products if product.source_product_id is not None
+        }
+        return [
+            MerchantSourceProductRead(
+                id=product.id,
+                integration_id=product.integration_id,
+                source_product_id=product.source_product_id,
+                source_type=product.source_type,
+                sku_mode=product.sku_mode,
+                name=product.name,
+                description=product.description,
+                sync_status=product.sync_status,
+                last_sync_at=product.last_sync_at,
+                published=published_by_source.get(product.id) is not None,
+                channel_product_id=published_by_source.get(product.id).id if published_by_source.get(product.id) else None,
+                channel_product_title=published_by_source.get(product.id).title if published_by_source.get(product.id) else None,
+                channel_product_status=published_by_source.get(product.id).status if published_by_source.get(product.id) else None,
+            )
+            for product in source_products
+        ]
+
+    def publish_source_product(
+        self,
+        context: RequestContext,
+        source_product_id: int,
+        payload: MerchantPublishSourceProductRequest,
+    ) -> MerchantChannelProductRead:
+        source_product = self.product_repository.get_source_product_by_id(source_product_id)
+        if source_product is None or source_product.tenant_id != context.tenant_id:
+            raise SourceProductNotFound()
+
+        channel_product = self.product_repository.get_channel_product_by_source_and_shop(source_product_id, context.shop_id)
+        if channel_product is None:
+            channel_product = ChannelProduct(
+                id=self._next_id(),
+                tenant_id=context.tenant_id,
+                shop_id=context.shop_id,
+                source_product_id=source_product.id,
+                title=payload.title or source_product.name,
+                subtitle=payload.subtitle,
+                cover=None,
+                album_json=None,
+                category_id=None,
+                status=payload.status,
+                sort_no=0,
+            )
+            self.product_repository.add_channel_product(channel_product)
+        else:
+            channel_product.title = payload.title or source_product.name
+            channel_product.subtitle = payload.subtitle
+            channel_product.status = payload.status
+
+        self.session.commit()
+        self.session.refresh(channel_product)
+        return self._to_channel_product_read(channel_product)
 
     def list_channel_products(self, context: RequestContext) -> list[MerchantChannelProductRead]:
         products = self.product_repository.list_channel_products(context.tenant_id, context.shop_id)
@@ -71,6 +136,13 @@ class MerchantConsoleService:
         self.session.commit()
         self.session.refresh(product)
         return self._to_channel_product_read(product)
+
+    def delete_channel_product(self, context: RequestContext, product_id: int) -> None:
+        product = self.product_repository.get_channel_product_for_store(context.tenant_id, context.shop_id, product_id)
+        if product is None:
+            raise ChannelProductNotFound()
+        self.product_repository.delete_channel_product(product)
+        self.session.commit()
 
     def list_product_skus(self, context: RequestContext, product_id: int) -> list[MerchantSkuRead]:
         product = self.product_repository.get_channel_product_for_store(context.tenant_id, context.shop_id, product_id)

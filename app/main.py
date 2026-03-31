@@ -13,6 +13,7 @@ from app.schemas.common import ResponseEnvelope
 
 LEGACY_WEB_DIR = Path(__file__).resolve().parent / "web" / "admin"
 ADMIN_DIST_DIR = Path(__file__).resolve().parent.parent / "admin-web" / "dist"
+UPLOADS_DIR = Path(__file__).resolve().parent.parent / "uploads"
 
 
 def create_app() -> FastAPI:
@@ -32,6 +33,8 @@ def create_app() -> FastAPI:
         app.mount("/admin/assets", StaticFiles(directory=ADMIN_DIST_DIR / "assets"), name="admin-assets")
     app.mount("/admin/static", StaticFiles(directory=LEGACY_WEB_DIR), name="admin-static")
     app.mount("/merchant-admin/static", StaticFiles(directory=LEGACY_WEB_DIR), name="merchant-admin-static")
+    UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
+    app.mount("/uploads", StaticFiles(directory=UPLOADS_DIR), name="uploads")
 
     @app.get("/admin", include_in_schema=False)
     @app.get("/admin/", include_in_schema=False)

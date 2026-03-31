@@ -145,6 +145,19 @@ textarea {
   flex-wrap: wrap;
 }
 
+.toolbar-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.toolbar-row input,
+.toolbar-row select {
+  min-width: 220px;
+  max-width: 360px;
+}
+
 .workbench {
   padding: 20px 28px 28px;
 }
@@ -574,6 +587,10 @@ th {
 .integration-form label {
   display: grid;
   gap: 8px;
+}
+
+.upload-field .inline-actions {
+  align-items: center;
 }
 
 .form-grid label span,

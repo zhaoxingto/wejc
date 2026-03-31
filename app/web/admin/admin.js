@@ -82,9 +82,13 @@ const refs = {
   previewShopName: $("preview-shop-name"),
   previewDescription: $("preview-description"),
   syncSummary: $("sync-summary"),
+  productsSearchInput: $("products-search"),
+  productsPublishFilter: $("products-publish-filter"),
   productsTable: $("products-table"),
   productsTableBody: $("products-table").querySelector("tbody"),
   productsEmpty: $("products-empty"),
+  channelProductsSearchInput: $("channel-products-search"),
+  channelProductsStatusFilter: $("channel-products-status-filter"),
   channelProductsTable: $("channel-products-table"),
   channelProductsTableBody: $("channel-products-table").querySelector("tbody"),
   channelProductsEmpty: $("channel-products-empty"),
@@ -93,10 +97,14 @@ const refs = {
   channelProductTitle: $("channel-product-title"),
   channelProductSubtitle: $("channel-product-subtitle"),
   channelProductCover: $("channel-product-cover"),
+  uploadCoverBtn: $("upload-cover-btn"),
+  coverUploadInput: $("cover-upload-input"),
   channelProductStatus: $("channel-product-status"),
   channelProductSortNo: $("channel-product-sort-no"),
   channelProductCategoryId: $("channel-product-category-id"),
   channelProductAlbum: $("channel-product-album"),
+  uploadAlbumBtn: $("upload-album-btn"),
+  albumUploadInput: $("album-upload-input"),
   channelProductSourceName: $("channel-product-source-name"),
   channelProductSourceDesc: $("channel-product-source-desc"),
   channelProductSpecs: $("channel-product-specs"),
@@ -106,6 +114,7 @@ const refs = {
   skuEditorEmpty: $("sku-editor-empty"),
   skuForm: $("sku-form"),
   skuCode: $("sku-code"),
+  generateSkuBtn: $("generate-sku-btn"),
   skuPrice: $("sku-price"),
   skuMarketPrice: $("sku-market-price"),
   skuStock: $("sku-stock"),
@@ -192,7 +201,7 @@ function switchMenu(key) {
 
 async function request(path, options = {}) {
   const headers = new Headers(options.headers || {});
-  if (!headers.has("Content-Type") && options.body) {
+  if (!headers.has("Content-Type") && options.body && !(options.body instanceof FormData)) {
     headers.set("Content-Type", "application/json");
   }
   if (state.storeContextToken) {
@@ -210,6 +219,24 @@ async function request(path, options = {}) {
     throw new Error(payload.message || "request failed");
   }
   return payload.data;
+}
+
+function makeSkuCode() {
+  const productPart = state.selectedChannelProductId ? String(state.selectedChannelProductId).slice(-4) : "NEW";
+  const timePart = new Date().toISOString().replace(/[-:TZ.]/g, "").slice(4, 14);
+  const randomPart = Math.random().toString(36).slice(2, 6).toUpperCase();
+  return `SKU-${productPart}-${timePart}-${randomPart}`;
+}
+
+async function uploadImage(file) {
+  return request("/api/merchant/uploads/image", {
+    method: "POST",
+    headers: {
+      "Content-Type": file.type || "image/png",
+      "X-Upload-Filename": file.name || "image.png",
+    },
+    body: file,
+  });
 }
 
 function formatTime(value) {
@@ -355,27 +382,78 @@ function bindColorInputs() {
   }
 }
 
+function getFilteredProducts() {
+  const keyword = refs.productsSearchInput ? refs.productsSearchInput.value.trim().toLowerCase() : "";
+  const publishFilter = refs.productsPublishFilter ? refs.productsPublishFilter.value : "";
+  return state.products.filter((product) => {
+    const matchesKeyword =
+      !keyword ||
+      String(product.source_product_id).toLowerCase().includes(keyword) ||
+      String(product.name || "").toLowerCase().includes(keyword) ||
+      String(product.description || "").toLowerCase().includes(keyword);
+    const matchesPublish =
+      !publishFilter ||
+      (publishFilter === "published" && product.published) ||
+      (publishFilter === "unpublished" && !product.published);
+    return matchesKeyword && matchesPublish;
+  });
+}
+
+function getFilteredChannelProducts() {
+  const keyword = refs.channelProductsSearchInput ? refs.channelProductsSearchInput.value.trim().toLowerCase() : "";
+  const statusFilter = refs.channelProductsStatusFilter ? refs.channelProductsStatusFilter.value : "";
+  return state.channelProducts.filter((product) => {
+    const matchesKeyword =
+      !keyword ||
+      String(product.title || "").toLowerCase().includes(keyword) ||
+      String(product.source_product_name || "").toLowerCase().includes(keyword) ||
+      String(product.subtitle || "").toLowerCase().includes(keyword);
+    const matchesStatus = !statusFilter || product.status === statusFilter;
+    return matchesKeyword && matchesStatus;
+  });
+}
+
 function renderProducts() {
+  const products = getFilteredProducts();
   refs.productsTableBody.innerHTML = "";
-  refs.productsEmpty.hidden = state.products.length > 0;
-  refs.productsTable.hidden = state.products.length === 0;
-  for (const product of state.products) {
+  refs.productsEmpty.hidden = products.length > 0;
+  refs.productsTable.hidden = products.length === 0;
+  for (const product of products) {
     const row = document.createElement("tr");
+    const actionCell = document.createElement("td");
+    actionCell.className = "inline-actions";
+    const publishBtn = document.createElement("button");
+    publishBtn.type = "button";
+    publishBtn.className = "ghost small-btn";
+    publishBtn.textContent = product.published ? "Refresh publish" : "Publish";
+    publishBtn.addEventListener("click", () => publishSourceProduct(product.id));
+    actionCell.appendChild(publishBtn);
+    if (product.channel_product_id) {
+      const editBtn = document.createElement("button");
+      editBtn.type = "button";
+      editBtn.className = "ghost small-btn";
+      editBtn.textContent = "Edit channel";
+      editBtn.addEventListener("click", () => openChannelProductEditor(product.channel_product_id));
+      actionCell.appendChild(editBtn);
+    }
     row.innerHTML = `
       <td>${product.source_product_id}</td>
       <td>${product.name}</td>
       <td>${product.sku_mode}</td>
       <td>${statusPill(product.sync_status)}</td>
       <td>${formatTime(product.last_sync_at)}</td>
+      <td>${product.published ? statusPill(product.channel_product_status || "active") : '<span class="status-pill neutral">Unpublished</span>'}</td>
     `;
+    row.appendChild(actionCell);
     refs.productsTableBody.appendChild(row);
   }
 }
 
 function renderChannelProducts() {
+  const channelProducts = getFilteredChannelProducts();
   refs.channelProductsTableBody.innerHTML = "";
-  refs.channelProductsEmpty.hidden = state.channelProducts.length > 0;
-  refs.channelProductsTable.hidden = state.channelProducts.length === 0;
+  refs.channelProductsEmpty.hidden = channelProducts.length > 0;
+  refs.channelProductsTable.hidden = channelProducts.length === 0;
   refs.skuProductSelect.innerHTML = "";
 
   const placeholder = document.createElement("option");
@@ -389,7 +467,9 @@ function renderChannelProducts() {
     option.textContent = product.title;
     option.selected = state.selectedChannelProductId === product.id;
     refs.skuProductSelect.appendChild(option);
+  }
 
+  for (const product of channelProducts) {
     const row = document.createElement("tr");
     row.className = state.selectedChannelProductId === product.id ? "row-active" : "";
     const actionCell = document.createElement("td");
@@ -407,7 +487,17 @@ function renderChannelProducts() {
       await selectChannelProduct(product.id);
       switchMenu("skus");
     });
-    actionCell.append(editBtn, skuBtn);
+    const statusBtn = document.createElement("button");
+    statusBtn.type = "button";
+    statusBtn.textContent = product.status === "active" ? "Disable" : "Activate";
+    statusBtn.className = "ghost small-btn";
+    statusBtn.addEventListener("click", () => quickToggleChannelProduct(product));
+    const deleteBtn = document.createElement("button");
+    deleteBtn.type = "button";
+    deleteBtn.textContent = "Delete";
+    deleteBtn.className = "ghost small-btn danger";
+    deleteBtn.addEventListener("click", () => deleteChannelProduct(product.id));
+    actionCell.append(editBtn, skuBtn, statusBtn, deleteBtn);
 
     row.innerHTML = `
       <td>${product.title}</td>
@@ -542,7 +632,7 @@ function renderSkuEditor() {
   }
 
   renderSkuSpecOptions();
-  refs.skuCode.value = editingSku ? editingSku.sku_code : "";
+  refs.skuCode.value = editingSku ? editingSku.sku_code : (refs.skuCode.value || makeSkuCode());
   refs.skuPrice.value = editingSku ? String(editingSku.price) : "";
   refs.skuMarketPrice.value = editingSku && editingSku.market_price != null ? String(editingSku.market_price) : "";
   refs.skuStock.value = editingSku ? String(editingSku.stock) : "0";
@@ -786,8 +876,7 @@ async function saveTheme() {
 async function syncProducts() {
   try {
     const result = await request("/api/merchant/products/sync", { method: "POST" });
-    state.products = result.source_products;
-    renderProducts();
+    await loadProducts();
     refs.syncSummary.textContent = `本次拉取 ${result.pulled_count} 条，新增 ${result.created_count} 条，更新 ${result.updated_count} 条，跳过 ${result.skipped_count} 条。`;
     await loadChannelProducts();
     await loadChannelProductDetail();
@@ -797,6 +886,30 @@ async function syncProducts() {
     showToast("商品同步完成");
   } catch (error) {
     showToast(`同步失败：${error.message}`, "error");
+  }
+}
+
+async function publishSourceProduct(sourceProductId) {
+  const sourceProduct = state.products.find((item) => item.id === sourceProductId);
+  if (!sourceProduct) {
+    return;
+  }
+  try {
+    const channelProduct = await request(`/api/merchant/source-products/${sourceProductId}/publish`, {
+      method: "POST",
+      body: JSON.stringify({
+        title: sourceProduct.name,
+        subtitle: sourceProduct.description || null,
+        status: sourceProduct.published ? (sourceProduct.channel_product_status || "draft") : "draft",
+      }),
+    });
+    await Promise.all([loadProducts(), loadChannelProducts()]);
+    await openChannelProductEditor(channelProduct.id);
+    renderOverview();
+    pushLog(`Published source product ${sourceProduct.source_product_id}`);
+    showToast("Source product published");
+  } catch (error) {
+    showToast(`Publish failed: ${error.message}`, "error");
   }
 }
 
@@ -851,6 +964,56 @@ async function saveChannelProduct() {
   }
 }
 
+async function quickToggleChannelProduct(product) {
+  const nextStatus = product.status === "active" ? "disabled" : "active";
+  try {
+    await request(`/api/merchant/channel-products/${product.id}`, {
+      method: "PUT",
+      body: JSON.stringify({ status: nextStatus }),
+    });
+    await Promise.all([loadProducts(), loadChannelProducts()]);
+    if (state.selectedChannelProductId === product.id) {
+      await loadChannelProductDetail(product.id);
+    }
+    renderOverview();
+    pushLog(`Channel product ${product.title} -> ${nextStatus}`);
+    showToast("Channel product status updated");
+  } catch (error) {
+    showToast(`Status update failed: ${error.message}`, "error");
+  }
+}
+
+async function deleteChannelProduct(productId = state.selectedChannelProductId) {
+  if (!productId) {
+    return;
+  }
+  if (!window.confirm("Delete this channel product and its SKU data?")) {
+    return;
+  }
+  try {
+    await request(`/api/merchant/channel-products/${productId}`, { method: "DELETE" });
+    if (state.selectedChannelProductId === productId) {
+      state.selectedChannelProductId = null;
+      state.channelProductDetail = null;
+      state.selectedSkuId = null;
+      state.skus = [];
+      renderChannelProductEditor();
+      renderSkus();
+      renderSkuEditor();
+    }
+    await Promise.all([loadProducts(), loadChannelProducts()]);
+    if (state.selectedChannelProductId) {
+      await loadChannelProductDetail(state.selectedChannelProductId);
+      await loadSkus();
+    }
+    renderOverview();
+    pushLog(`Deleted channel product ${productId}`);
+    showToast("Channel product deleted");
+  } catch (error) {
+    showToast(`Delete failed: ${error.message}`, "error");
+  }
+}
+
 function collectSkuPayload() {
   const specValueIds = Array.from(refs.skuSpecOptions.querySelectorAll('input[type="checkbox"]:checked')).map((input) => Number(input.value));
   return {
@@ -865,6 +1028,7 @@ function collectSkuPayload() {
 
 function startCreateSku() {
   state.selectedSkuId = null;
+  refs.skuCode.value = makeSkuCode();
   renderSkus();
   renderSkuEditor();
 }
@@ -1017,13 +1181,74 @@ refs.resetPresetBtn.addEventListener("click", resetToPreset);
 refs.saveThemeBtn.addEventListener("click", saveTheme);
 refs.syncProductsBtn.addEventListener("click", syncProducts);
 refs.refreshProductsBtn.addEventListener("click", loadProducts);
+if (refs.productsSearchInput) {
+  refs.productsSearchInput.addEventListener("input", renderProducts);
+}
+if (refs.productsPublishFilter) {
+  refs.productsPublishFilter.addEventListener("change", renderProducts);
+}
 refs.refreshChannelProductsBtn.addEventListener("click", async () => {
   await loadChannelProducts();
   await loadChannelProductDetail();
   await loadSkus();
   renderOverview();
 });
+if (refs.channelProductsSearchInput) {
+  refs.channelProductsSearchInput.addEventListener("input", renderChannelProducts);
+}
+if (refs.channelProductsStatusFilter) {
+  refs.channelProductsStatusFilter.addEventListener("change", renderChannelProducts);
+}
 refs.saveChannelProductBtn.addEventListener("click", saveChannelProduct);
+if (refs.generateSkuBtn) {
+  refs.generateSkuBtn.addEventListener("click", () => {
+    refs.skuCode.value = makeSkuCode();
+    showToast("SKU code generated");
+  });
+}
+if (refs.uploadCoverBtn && refs.coverUploadInput) {
+  refs.uploadCoverBtn.addEventListener("click", () => refs.coverUploadInput.click());
+  refs.coverUploadInput.addEventListener("change", async () => {
+    const file = refs.coverUploadInput.files && refs.coverUploadInput.files[0];
+    if (!file) {
+      return;
+    }
+    try {
+      const uploaded = await uploadImage(file);
+      refs.channelProductCover.value = uploaded.url;
+      showToast("Cover uploaded");
+    } catch (error) {
+      showToast(`Cover upload failed: ${error.message}`, "error");
+    } finally {
+      refs.coverUploadInput.value = "";
+    }
+  });
+}
+if (refs.uploadAlbumBtn && refs.albumUploadInput) {
+  refs.uploadAlbumBtn.addEventListener("click", () => refs.albumUploadInput.click());
+  refs.albumUploadInput.addEventListener("change", async () => {
+    const files = Array.from(refs.albumUploadInput.files || []);
+    if (files.length === 0) {
+      return;
+    }
+    try {
+      const uploadedItems = [];
+      for (const file of files) {
+        uploadedItems.push(await uploadImage(file));
+      }
+      const existing = refs.channelProductAlbum.value
+        .split("\n")
+        .map((item) => item.trim())
+        .filter(Boolean);
+      refs.channelProductAlbum.value = [...existing, ...uploadedItems.map((item) => item.url)].join("\n");
+      showToast(`${uploadedItems.length} image(s) uploaded`);
+    } catch (error) {
+      showToast(`Album upload failed: ${error.message}`, "error");
+    } finally {
+      refs.albumUploadInput.value = "";
+    }
+  });
+}
 refs.openSkuEditorBtn.addEventListener("click", () => switchMenu("skus"));
 refs.createSkuBtn.addEventListener("click", startCreateSku);
 refs.saveSkuBtn.addEventListener("click", saveSku);

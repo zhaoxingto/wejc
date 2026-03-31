@@ -1,8 +1,10 @@
+import { API_BASE_URL } from './config'
+
 const STORE_CONTEXT_KEY = 'wejc_store_context'
 
 App<IAppOption>({
   globalData: {
-    apiBaseUrl: 'http://127.0.0.1:8000',
+    apiBaseUrl: API_BASE_URL,
     demoShopCode: 'SHP8A92KD',
     demoCustomerId: 8001,
   },

@@ -97,6 +97,9 @@ class ProductRepository(BaseRepository):
     def add_channel_product(self, product: ChannelProduct) -> None:
         self.session.add(product)
 
+    def delete_channel_product(self, product: ChannelProduct) -> None:
+        self.session.delete(product)
+
     def list_channel_products(self, tenant_id: int | None, shop_id: int | None) -> list[ChannelProduct]:
         stmt: Select[tuple[ChannelProduct]] = (
             select(ChannelProduct)

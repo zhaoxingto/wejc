@@ -181,6 +181,14 @@
               </div>
               <div id="sync-summary" class="inline-note">连接店铺后可触发商品同步。</div>
               <div id="products-empty" class="empty-state">暂无来源商品。</div>
+              <div class="toolbar-row">
+                <input id="products-search" placeholder="Search source products" />
+                <select id="products-publish-filter">
+                  <option value="">All publish states</option>
+                  <option value="published">Published</option>
+                  <option value="unpublished">Unpublished</option>
+                </select>
+              </div>
               <div class="table-wrap">
                 <table id="products-table" hidden>
                   <thead>
@@ -190,6 +198,8 @@
                       <th>SKU 模式</th>
                       <th>同步状态</th>
                       <th>最近同步时间</th>
+                      <th>Publish</th>
+                      <th>Actions</th>
                     </tr>
                   </thead>
                   <tbody></tbody>
@@ -211,6 +221,15 @@
                   </div>
                 </div>
                 <div id="channel-products-empty" class="empty-state">暂无渠道商品。</div>
+                <div class="toolbar-row">
+                  <input id="channel-products-search" placeholder="Search channel products" />
+                  <select id="channel-products-status-filter">
+                    <option value="">All statuses</option>
+                    <option value="active">active</option>
+                    <option value="draft">draft</option>
+                    <option value="disabled">disabled</option>
+                  </select>
+                </div>
                 <div class="table-wrap">
                   <table id="channel-products-table" hidden>
                     <thead>
@@ -254,6 +273,13 @@
                       <span>封面图</span>
                       <input id="channel-product-cover" />
                     </label>
+                    <label class="upload-field">
+                      <span>Cover upload</span>
+                      <div class="inline-actions">
+                        <button id="upload-cover-btn" type="button" class="ghost small-btn">Upload cover</button>
+                        <input id="cover-upload-input" type="file" accept="image/*" hidden />
+                      </div>
+                    </label>
                     <label>
                       <span>状态</span>
                       <select id="channel-product-status">
@@ -273,6 +299,13 @@
                     <label class="full">
                       <span>相册图</span>
                       <textarea id="channel-product-album" rows="3" placeholder="每行一张图片地址"></textarea>
+                    </label>
+                    <label class="full upload-field">
+                      <span>Album upload</span>
+                      <div class="inline-actions">
+                        <button id="upload-album-btn" type="button" class="ghost small-btn">Add album images</button>
+                        <input id="album-upload-input" type="file" accept="image/*" multiple hidden />
+                      </div>
                     </label>
                   </div>
                   <div class="detail-grid">
@@ -341,6 +374,12 @@
                     <label>
                       <span>SKU 编码</span>
                       <input id="sku-code" />
+                    </label>
+                    <label class="upload-field">
+                      <span>SKU helper</span>
+                      <div class="inline-actions">
+                        <button id="generate-sku-btn" type="button" class="ghost small-btn">Generate SKU</button>
+                      </div>
                     </label>
                     <label>
                       <span>售价</span>
