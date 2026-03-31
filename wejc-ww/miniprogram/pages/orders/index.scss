@@ -1,0 +1,92 @@
+page {
+  background: var(--background-color);
+  color: var(--text-color);
+}
+
+.orders-scroll {
+  height: calc(100vh - 128rpx);
+}
+
+.orders-shell {
+  padding: 24rpx;
+  padding-bottom: 80rpx;
+  background: var(--background-color);
+  min-height: 100%;
+}
+
+.empty-card,
+.order-card {
+  border-radius: 28rpx;
+  background: var(--surface-color);
+  box-shadow: 0 12rpx 32rpx rgba(106, 74, 42, 0.08);
+}
+
+.empty-card {
+  padding: 40rpx 28rpx;
+  text-align: center;
+  color: var(--text-muted-color);
+}
+
+.order-card {
+  margin-bottom: 20rpx;
+  padding: 24rpx;
+}
+
+.order-card-highlighted {
+  outline: 3rpx solid var(--primary-color);
+}
+
+.order-head,
+.order-item,
+.order-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+}
+
+.order-head {
+  margin-bottom: 18rpx;
+}
+
+.order-no {
+  display: block;
+  font-size: 30rpx;
+  font-weight: 700;
+}
+
+.order-time,
+.item-meta {
+  display: block;
+  margin-top: 8rpx;
+  color: var(--text-muted-color);
+  font-size: 24rpx;
+}
+
+.order-status {
+  text-align: right;
+  color: var(--primary-color);
+  font-size: 24rpx;
+}
+
+.order-item {
+  padding: 16rpx 0;
+  border-top: 1rpx solid rgba(31, 41, 51, 0.06);
+}
+
+.item-title {
+  display: block;
+  font-size: 28rpx;
+}
+
+.item-amount {
+  font-weight: 700;
+}
+
+.order-foot {
+  margin-top: 10rpx;
+  padding-top: 18rpx;
+  border-top: 1rpx solid rgba(31, 41, 51, 0.06);
+  justify-content: flex-end;
+  font-weight: 700;
+}

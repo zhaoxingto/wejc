@@ -1,0 +1,35 @@
+<navigation-bar title="确认下单" color="{{navFrontColor}}" background="{{navBackgroundColor}}"></navigation-bar>
+
+<scroll-view class="checkout-scroll" scroll-y style="{{themeStyle}}">
+  <view class="checkout-shell">
+    <view class="section-card">
+      <text class="section-title">收货信息</text>
+      <text class="address-line">演示收货人 13900000000</text>
+      <text class="address-line">上海市测试路 88 号</text>
+    </view>
+
+    <view class="section-card">
+      <text class="section-title">商品清单</text>
+      <view wx:for="{{items}}" wx:key="skuId" class="checkout-item">
+        <view>
+          <text class="item-title">{{item.productTitle}}</text>
+          <text class="item-meta">{{item.skuText}} x {{item.qty}}</text>
+        </view>
+        <text class="item-amount">¥{{item.price}}</text>
+      </view>
+    </view>
+
+    <view class="section-card">
+      <text class="section-title">备注</text>
+      <textarea class="remark-box" value="{{remark}}" placeholder="给商家留一句话，例如：尽快发货" bindinput="handleRemarkInput"></textarea>
+    </view>
+  </view>
+</scroll-view>
+
+<view class="checkout-footer" style="{{themeStyle}}">
+  <view>
+    <text class="footer-label">应付金额</text>
+    <text class="footer-value">¥{{totalAmount}}</text>
+  </view>
+  <button class="primary-btn" loading="{{submitting}}" bindtap="submitOrder">提交订单</button>
+</view>

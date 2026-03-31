@@ -1,0 +1,135 @@
+page {
+  background: var(--background-color);
+  color: var(--text-color);
+}
+
+.cart-scroll {
+  height: calc(100vh - 128rpx);
+}
+
+.cart-shell {
+  padding: 24rpx;
+  padding-bottom: 280rpx;
+  background: var(--background-color);
+  min-height: 100%;
+}
+
+.empty-card,
+.cart-card {
+  border-radius: 28rpx;
+  background: var(--surface-color);
+  box-shadow: 0 12rpx 32rpx rgba(106, 74, 42, 0.08);
+}
+
+.empty-card {
+  padding: 40rpx 28rpx;
+  text-align: center;
+  color: var(--text-muted-color);
+}
+
+.cart-card {
+  display: flex;
+  gap: 18rpx;
+  padding: 20rpx;
+  margin-bottom: 20rpx;
+}
+
+.cart-cover {
+  width: 156rpx;
+  height: 156rpx;
+  border-radius: 22rpx;
+  background: var(--surface-muted-color);
+}
+
+.cart-body {
+  flex: 1;
+  display: grid;
+  gap: 10rpx;
+}
+
+.cart-title {
+  font-size: 30rpx;
+  font-weight: 700;
+}
+
+.cart-meta {
+  color: var(--text-muted-color);
+  font-size: 24rpx;
+}
+
+.cart-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12rpx;
+}
+
+.qty-controller {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.qty-btn {
+  width: 64rpx;
+  height: 64rpx;
+  line-height: 64rpx;
+  margin: 0;
+  border-radius: 18rpx;
+  background: var(--surface-muted-color);
+  color: var(--primary-color);
+}
+
+.qty-value {
+  min-width: 40rpx;
+  text-align: center;
+  font-weight: 700;
+}
+
+.link-btn {
+  margin: 0;
+  padding: 0 18rpx;
+  height: 64rpx;
+  line-height: 64rpx;
+  border-radius: 18rpx;
+  background: transparent;
+  color: #b45c47;
+  font-size: 24rpx;
+}
+
+.cart-footer {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: calc(120rpx + env(safe-area-inset-bottom));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20rpx 24rpx calc(20rpx + env(safe-area-inset-bottom));
+  background: var(--surface-color);
+  box-shadow: 0 -10rpx 24rpx rgba(80, 57, 31, 0.06);
+}
+
+.footer-label {
+  display: block;
+  color: var(--text-muted-color);
+  font-size: 22rpx;
+}
+
+.footer-value {
+  display: block;
+  margin-top: 8rpx;
+  font-size: 36rpx;
+  font-weight: 700;
+}
+
+.primary-btn {
+  margin: 0;
+  width: 220rpx;
+  height: 84rpx;
+  line-height: 84rpx;
+  border-radius: 22rpx;
+  background: var(--primary-color);
+  color: var(--primary-text-color);
+  font-size: 26rpx;
+}

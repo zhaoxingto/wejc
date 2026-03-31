@@ -1,0 +1,59 @@
+<navigation-bar title="首页" back="{{false}}" color="{{navFrontColor}}" background="{{navBackgroundColor}}"></navigation-bar>
+
+<scroll-view class="page-scroll" scroll-y style="{{themeStyle}}">
+  <view class="page-shell">
+    <view class="hero-card">
+      <view class="shop-hero">
+        <image wx:if="{{logo}}" class="shop-logo" src="{{logo}}" mode="aspectFill"></image>
+        <view class="shop-copy">
+          <text class="hero-title">{{shopName}}</text>
+          <text class="hero-intro">{{intro}}</text>
+        </view>
+      </view>
+      <image wx:if="{{cover}}" class="hero-cover" src="{{cover}}" mode="aspectFill"></image>
+    </view>
+
+    <view class="info-card">
+      <text class="section-title">店铺介绍</text>
+      <text class="info-text">{{intro}}</text>
+    </view>
+
+    <view class="info-card notice-card">
+      <text class="section-title">店铺公告</text>
+      <text class="info-text">{{notice}}</text>
+      <view class="connect-row">
+        <input class="code-input" value="{{shopCode}}" placeholder="请输入店铺码" bindinput="handleShopCodeInput" />
+        <button class="primary-btn connect-btn" loading="{{loading}}" bindtap="connectShop">切换</button>
+      </view>
+      <text wx:if="{{errorMessage}}" class="error-text">{{errorMessage}}</text>
+    </view>
+
+    <view class="section-header">
+      <text class="section-title">推荐产品</text>
+      <button class="ghost-btn" bindtap="openProductTab">进入产品页</button>
+    </view>
+
+    <view wx:if="{{recommendedProducts.length === 0 && !loading}}" class="empty-card">
+      <text>当前还没有可展示的推荐商品。</text>
+    </view>
+
+    <view class="product-list">
+      <view
+        wx:for="{{recommendedProducts}}"
+        wx:key="id"
+        class="product-card"
+        data-id="{{item.id}}"
+        bindtap="openProductDetail"
+      >
+        <image wx:if="{{item.cover}}" class="product-cover" src="{{item.cover}}" mode="aspectFill"></image>
+        <view class="product-body">
+          <text class="product-title">{{item.title}}</text>
+          <text class="product-subtitle">{{item.subtitle || '点击查看规格与价格'}}</text>
+          <text class="product-link">查看详情</text>
+        </view>
+      </view>
+    </view>
+
+    <button class="floating-cart" bindtap="openCart">购物车 {{cartCount}}</button>
+  </view>
+</scroll-view>

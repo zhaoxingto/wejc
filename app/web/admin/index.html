@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WEJC 商家中台</title>
+    <link rel="stylesheet" href="/merchant-admin/static/admin.css" />
+  </head>
+  <body>
+    <div class="layout-shell">
+      <aside class="sidebar">
+        <div class="brand-block">
+          <p class="brand-eyebrow">WEJC Merchant Console</p>
+          <h1>商家中台</h1>
+          <p class="brand-copy">面向商家的日常运营后台，统一管理店铺、主题、商品、SKU、订单和接入配置。</p>
+        </div>
+
+        <div class="connect-card">
+          <label for="shop-code">连接店铺</label>
+          <form id="connect-form" class="connect-form">
+            <input id="shop-code" name="shopCode" placeholder="请输入店铺码，例如 SHP8A92KD" required />
+            <button type="submit">连接</button>
+          </form>
+          <div class="connection-row">
+            <span>连接状态</span>
+            <span id="connection-badge" class="badge badge-muted">未连接</span>
+          </div>
+        </div>
+
+        <nav class="side-menu">
+          <button type="button" class="menu-item menu-item-active" data-menu="overview">概览</button>
+          <button type="button" class="menu-item" data-menu="store">店铺设置</button>
+          <button type="button" class="menu-item" data-menu="theme">主题配色</button>
+          <button type="button" class="menu-item" data-menu="products">商品同步</button>
+          <button type="button" class="menu-item" data-menu="channel-products">渠道商品管理</button>
+          <button type="button" class="menu-item" data-menu="skus">SKU 管理</button>
+          <button type="button" class="menu-item" data-menu="integration">接入配置</button>
+          <button type="button" class="menu-item" data-menu="orders">订单中心</button>
+          <button type="button" class="menu-item" data-menu="push-logs">推送日志</button>
+        </nav>
+      </aside>
+
+      <section class="main-shell">
+        <header class="topbar">
+          <div>
+            <p class="topbar-eyebrow">商家后台 / <span id="current-menu-label">概览</span></p>
+            <h2 id="page-title">商家中台概览</h2>
+          </div>
+          <div class="topbar-actions">
+            <button id="refresh-all-btn" type="button" class="ghost" disabled>刷新数据</button>
+            <button id="run-push-btn" type="button" class="ghost" disabled>执行推送</button>
+          </div>
+        </header>
+
+        <main class="workbench">
+          <section id="panel-overview" class="page-panel">
+            <div class="stats-grid">
+              <article class="stat-card"><span>店铺名称</span><strong id="overview-shop-name">-</strong></article>
+              <article class="stat-card"><span>主题模板</span><strong id="overview-theme-name">-</strong></article>
+              <article class="stat-card"><span>来源商品数</span><strong id="overview-product-count">0</strong></article>
+              <article class="stat-card"><span>渠道商品数</span><strong id="overview-channel-count">0</strong></article>
+              <article class="stat-card"><span>SKU 数</span><strong id="overview-sku-count">0</strong></article>
+              <article class="stat-card"><span>订单数</span><strong id="overview-order-count">0</strong></article>
+              <article class="stat-card"><span>推送日志数</span><strong id="overview-log-count">0</strong></article>
+            </div>
+
+            <div class="grid two-column">
+              <section class="panel">
+                <div class="panel-head">
+                  <div>
+                    <p class="panel-kicker">Store Summary</p>
+                    <h3>店铺信息</h3>
+                  </div>
+                </div>
+                <div id="overview-store-summary" class="summary-grid empty-state">连接店铺后显示门店摘要。</div>
+              </section>
+
+              <section class="panel">
+                <div class="panel-head">
+                  <div>
+                    <p class="panel-kicker">Theme Preview</p>
+                    <h3>主题预览</h3>
+                  </div>
+                </div>
+                <div id="preview-phone" class="preview-phone">
+                  <div class="preview-screen">
+                    <div class="preview-header">
+                      <div class="preview-avatar"></div>
+                      <div>
+                        <strong id="preview-shop-name">店铺首页</strong>
+                        <p id="preview-description">连接店铺后即可看到当前配色效果。</p>
+                      </div>
+                    </div>
+                    <div class="preview-notice">公告区域会同步使用店铺主题色。</div>
+                    <div class="preview-card-list">
+                      <div class="preview-card">
+                        <span>推荐商品</span>
+                        <strong>门店热销礼盒</strong>
+                      </div>
+                      <div class="preview-card muted">
+                        <span>产品页</span>
+                        <strong>品牌区 / 分类区 / 商品列表</strong>
+                      </div>
+                    </div>
+                    <div class="preview-tabbar">
+                      <div class="preview-tab active">首页</div>
+                      <div class="preview-tab">产品</div>
+                      <div class="preview-tab">购物车</div>
+                      <div class="preview-tab">我的</div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            </div>
+          </section>
+
+          <section id="panel-store" class="page-panel hidden">
+            <section class="panel">
+              <div class="panel-head">
+                <div>
+                  <p class="panel-kicker">Store Settings</p>
+                  <h3>店铺设置</h3>
+                </div>
+              </div>
+              <div id="store-settings-grid" class="summary-grid empty-state">连接店铺后显示店铺设置信息。</div>
+            </section>
+          </section>
+
+          <section id="panel-theme" class="page-panel hidden">
+            <div class="grid two-column">
+              <section class="panel">
+                <div class="panel-head">
+                  <div>
+                    <p class="panel-kicker">Preset Templates</p>
+                    <h3>模板库</h3>
+                  </div>
+                  <div class="actions">
+                    <button id="refresh-theme-btn" type="button" class="ghost" disabled>刷新主题</button>
+                  </div>
+                </div>
+                <div id="preset-list" class="preset-list"></div>
+              </section>
+
+              <section class="panel">
+                <div class="panel-head">
+                  <div>
+                    <p class="panel-kicker">Custom Colors</p>
+                    <h3>自定义配色</h3>
+                  </div>
+                  <div class="actions">
+                    <button id="reset-preset-btn" type="button" class="ghost" disabled>恢复模板原色</button>
+                    <button id="save-theme-btn" type="button" disabled>保存配色</button>
+                  </div>
+                </div>
+                <div class="form-grid" id="theme-form">
+                  <label class="color-field"><span>主色</span><input id="primary_color" type="color" /><code id="primary_color_text"></code></label>
+                  <label class="color-field"><span>主色文字</span><input id="primary_text_color" type="color" /><code id="primary_text_color_text"></code></label>
+                  <label class="color-field"><span>强调色</span><input id="accent_color" type="color" /><code id="accent_color_text"></code></label>
+                  <label class="color-field"><span>页面背景</span><input id="background_color" type="color" /><code id="background_color_text"></code></label>
+                  <label class="color-field"><span>主卡片背景</span><input id="surface_color" type="color" /><code id="surface_color_text"></code></label>
+                  <label class="color-field"><span>辅助卡片背景</span><input id="surface_muted_color" type="color" /><code id="surface_muted_color_text"></code></label>
+                  <label class="color-field"><span>正文颜色</span><input id="text_color" type="color" /><code id="text_color_text"></code></label>
+                  <label class="color-field"><span>次级文字</span><input id="text_muted_color" type="color" /><code id="text_muted_color_text"></code></label>
+                  <label class="color-field"><span>公告背景</span><input id="notice_background_color" type="color" /><code id="notice_background_color_text"></code></label>
+                </div>
+              </section>
+            </div>
+          </section>
+
+          <section id="panel-products" class="page-panel hidden">
+            <section class="panel">
+              <div class="panel-head">
+                <div>
+                  <p class="panel-kicker">Catalog Sync</p>
+                  <h3>商品同步</h3>
+                </div>
+                <div class="actions">
+                  <button id="sync-products-btn" type="button" disabled>同步商品</button>
+                  <button id="refresh-products-btn" type="button" class="ghost" disabled>刷新列表</button>
+                </div>
+              </div>
+              <div id="sync-summary" class="inline-note">连接店铺后可触发商品同步。</div>
+              <div id="products-empty" class="empty-state">暂无来源商品。</div>
+              <div class="table-wrap">
+                <table id="products-table" hidden>
+                  <thead>
+                    <tr>
+                      <th>来源商品 ID</th>
+                      <th>商品名称</th>
+                      <th>SKU 模式</th>
+                      <th>同步状态</th>
+                      <th>最近同步时间</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </section>
+          </section>
+
+          <section id="panel-channel-products" class="page-panel hidden">
+            <div class="grid editor-layout">
+              <section class="panel">
+                <div class="panel-head">
+                  <div>
+                    <p class="panel-kicker">Channel Products</p>
+                    <h3>渠道商品管理</h3>
+                  </div>
+                  <div class="actions">
+                    <button id="refresh-channel-products-btn" type="button" class="ghost" disabled>刷新列表</button>
+                  </div>
+                </div>
+                <div id="channel-products-empty" class="empty-state">暂无渠道商品。</div>
+                <div class="table-wrap">
+                  <table id="channel-products-table" hidden>
+                    <thead>
+                      <tr>
+                        <th>标题</th>
+                        <th>来源商品</th>
+                        <th>状态</th>
+                        <th>排序</th>
+                        <th>SKU 数</th>
+                        <th>操作</th>
+                      </tr>
+                    </thead>
+                    <tbody></tbody>
+                  </table>
+                </div>
+              </section>
+
+              <section class="panel">
+                <div class="panel-head">
+                  <div>
+                    <p class="panel-kicker">Product Editor</p>
+                    <h3>完整编辑页</h3>
+                  </div>
+                  <div class="actions">
+                    <button id="open-sku-editor-btn" type="button" class="ghost" disabled>切到 SKU 管理</button>
+                    <button id="save-channel-product-btn" type="button" disabled>保存商品</button>
+                  </div>
+                </div>
+                <div id="channel-product-editor-empty" class="empty-state">请选择左侧商品后进行编辑。</div>
+                <form id="channel-product-form" class="editor-form hidden">
+                  <div class="form-grid compact">
+                    <label>
+                      <span>商品标题</span>
+                      <input id="channel-product-title" />
+                    </label>
+                    <label>
+                      <span>副标题</span>
+                      <input id="channel-product-subtitle" />
+                    </label>
+                    <label>
+                      <span>封面图</span>
+                      <input id="channel-product-cover" />
+                    </label>
+                    <label>
+                      <span>状态</span>
+                      <select id="channel-product-status">
+                        <option value="active">active</option>
+                        <option value="draft">draft</option>
+                        <option value="disabled">disabled</option>
+                      </select>
+                    </label>
+                    <label>
+                      <span>排序号</span>
+                      <input id="channel-product-sort-no" type="number" />
+                    </label>
+                    <label>
+                      <span>分类 ID</span>
+                      <input id="channel-product-category-id" type="number" />
+                    </label>
+                    <label class="full">
+                      <span>相册图</span>
+                      <textarea id="channel-product-album" rows="3" placeholder="每行一张图片地址"></textarea>
+                    </label>
+                  </div>
+                  <div class="detail-grid">
+                    <article class="detail-card">
+                      <span>来源商品</span>
+                      <strong id="channel-product-source-name">-</strong>
+                      <p id="channel-product-source-desc">-</p>
+                    </article>
+                    <article class="detail-card">
+                      <span>规格结构</span>
+                      <div id="channel-product-specs" class="tag-list"></div>
+                    </article>
+                  </div>
+                </form>
+              </section>
+            </div>
+          </section>
+
+          <section id="panel-skus" class="page-panel hidden">
+            <div class="grid editor-layout">
+              <section class="panel">
+                <div class="panel-head">
+                  <div>
+                    <p class="panel-kicker">SKU Center</p>
+                    <h3>SKU 管理</h3>
+                  </div>
+                  <div class="actions">
+                    <select id="sku-product-select" disabled></select>
+                    <button id="create-sku-btn" type="button" class="ghost" disabled>新增 SKU</button>
+                    <button id="refresh-skus-btn" type="button" class="ghost" disabled>刷新 SKU</button>
+                  </div>
+                </div>
+                <div id="skus-empty" class="empty-state">请选择一个渠道商品查看 SKU。</div>
+                <div class="table-wrap">
+                  <table id="skus-table" hidden>
+                    <thead>
+                      <tr>
+                        <th>SKU 编码</th>
+                        <th>规格</th>
+                        <th>售价</th>
+                        <th>划线价</th>
+                        <th>库存</th>
+                        <th>状态</th>
+                        <th>操作</th>
+                      </tr>
+                    </thead>
+                    <tbody></tbody>
+                  </table>
+                </div>
+              </section>
+
+              <section class="panel">
+                <div class="panel-head">
+                  <div>
+                    <p class="panel-kicker">SKU Editor</p>
+                    <h3>SKU 新增 / 编辑 / 删除</h3>
+                  </div>
+                  <div class="actions">
+                    <button id="delete-sku-btn" type="button" class="ghost danger" disabled>删除 SKU</button>
+                    <button id="save-sku-btn" type="button" disabled>保存 SKU</button>
+                  </div>
+                </div>
+                <div id="sku-editor-empty" class="empty-state">请先选择商品，再新增或编辑 SKU。</div>
+                <form id="sku-form" class="editor-form hidden">
+                  <div class="form-grid compact">
+                    <label>
+                      <span>SKU 编码</span>
+                      <input id="sku-code" />
+                    </label>
+                    <label>
+                      <span>售价</span>
+                      <input id="sku-price" type="number" step="0.01" />
+                    </label>
+                    <label>
+                      <span>划线价</span>
+                      <input id="sku-market-price" type="number" step="0.01" />
+                    </label>
+                    <label>
+                      <span>库存</span>
+                      <input id="sku-stock" type="number" />
+                    </label>
+                    <label>
+                      <span>状态</span>
+                      <select id="sku-status">
+                        <option value="active">active</option>
+                        <option value="disabled">disabled</option>
+                      </select>
+                    </label>
+                  </div>
+                  <div class="spec-picker">
+                    <div class="spec-picker-head">
+                      <strong>规格值选择</strong>
+                      <span>可多选，用于组合 SKU 规格</span>
+                    </div>
+                    <div id="sku-spec-options" class="spec-option-groups"></div>
+                  </div>
+                </form>
+              </section>
+            </div>
+          </section>
+
+          <section id="panel-integration" class="page-panel hidden">
+            <section class="panel">
+              <div class="panel-head">
+                <div>
+                  <p class="panel-kicker">Integration Config</p>
+                  <h3>接入配置</h3>
+                </div>
+                <div class="actions">
+                  <button id="test-integration-btn" type="button" class="ghost" disabled>连通性测试</button>
+                  <button id="refresh-integration-btn" type="button" class="ghost" disabled>刷新配置</button>
+                  <button id="save-integration-btn" type="button" disabled>保存配置</button>
+                </div>
+              </div>
+              <div class="integration-form">
+                <label><span>接入名称</span><input id="integration-name" /></label>
+                <label><span>接入类型</span><input id="integration-type" /></label>
+                <label><span>状态</span><input id="integration-status" /></label>
+                <label><span>接口地址</span><input id="integration-api-base-url" /></label>
+                <label><span>API Key</span><input id="integration-api-key" /></label>
+                <label><span>API Secret</span><input id="integration-api-secret" placeholder="留空则不修改" /></label>
+                <label class="toggle-row"><span>开启商品同步</span><input id="integration-product-sync-enabled" type="checkbox" /></label>
+                <label class="toggle-row"><span>开启订单推送</span><input id="integration-order-push-enabled" type="checkbox" /></label>
+              </div>
+              <div id="integration-test-result" class="empty-state">点击“连通性测试”后，这里会显示接口请求结果。</div>
+            </section>
+          </section>
+
+          <section id="panel-orders" class="page-panel hidden">
+            <section class="panel">
+              <div class="panel-head">
+                <div>
+                  <p class="panel-kicker">Orders</p>
+                  <h3>订单中心</h3>
+                </div>
+                <div class="actions">
+                  <button id="refresh-orders-btn" type="button" class="ghost" disabled>刷新订单</button>
+                </div>
+              </div>
+              <div id="orders-empty" class="empty-state">暂无订单。</div>
+              <div class="table-wrap">
+                <table id="orders-table" hidden>
+                  <thead>
+                    <tr>
+                      <th>订单号</th>
+                      <th>客户 ID</th>
+                      <th>金额</th>
+                      <th>订单状态</th>
+                      <th>推送状态</th>
+                      <th>创建时间</th>
+                      <th>操作</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </section>
+          </section>
+
+          <section id="panel-push-logs" class="page-panel hidden">
+            <section class="panel">
+              <div class="panel-head">
+                <div>
+                  <p class="panel-kicker">Push Logs</p>
+                  <h3>推送日志</h3>
+                </div>
+                <div class="actions">
+                  <button id="refresh-logs-btn" type="button" class="ghost" disabled>刷新日志</button>
+                </div>
+              </div>
+              <div id="push-logs-empty" class="empty-state">暂无推送日志。</div>
+              <div class="table-wrap">
+                <table id="push-logs-table" hidden>
+                  <thead>
+                    <tr>
+                      <th>日志 ID</th>
+                      <th>订单 ID</th>
+                      <th>任务 ID</th>
+                      <th>结果</th>
+                      <th>推送时间</th>
+                      <th>记录时间</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </section>
+          </section>
+
+          <section class="panel">
+            <div class="panel-head">
+              <div>
+                <p class="panel-kicker">Activity</p>
+                <h3>操作日志</h3>
+              </div>
+            </div>
+            <div id="toast" class="toast" hidden></div>
+            <ul id="activity-log" class="activity-log"></ul>
+          </section>
+        </main>
+      </section>
+    </div>
+
+    <script src="/merchant-admin/static/admin.js"></script>
+  </body>
+</html>

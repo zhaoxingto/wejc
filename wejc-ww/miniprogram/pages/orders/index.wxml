@@ -1,0 +1,34 @@
+<navigation-bar title="我的订单" color="{{navFrontColor}}" background="{{navBackgroundColor}}"></navigation-bar>
+
+<scroll-view class="orders-scroll" scroll-y style="{{themeStyle}}">
+  <view class="orders-shell">
+    <view wx:if="{{orders.length === 0 && !loading}}" class="empty-card">
+      <text>还没有订单，去首页试着下一单吧。</text>
+    </view>
+
+    <view wx:for="{{orders}}" wx:key="id" class="order-card {{item.highlighted ? 'order-card-highlighted' : ''}}">
+      <view class="order-head">
+        <view>
+          <text class="order-no">{{item.order_no}}</text>
+          <text class="order-time">{{item.displayTime}}</text>
+        </view>
+        <view class="order-status">
+          <text>{{item.status}}</text>
+          <text>{{item.push_status}}</text>
+        </view>
+      </view>
+
+      <view wx:for="{{item.items}}" wx:key="id" class="order-item">
+        <view>
+          <text class="item-title">{{item.product_title}}</text>
+          <text class="item-meta">{{item.sku_text}} x {{item.qty}}</text>
+        </view>
+        <text class="item-amount">¥{{item.amount}}</text>
+      </view>
+
+      <view class="order-foot">
+        <text>合计 ¥{{item.total_amount}}</text>
+      </view>
+    </view>
+  </view>
+</scroll-view>

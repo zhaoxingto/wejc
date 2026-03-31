@@ -1,0 +1,57 @@
+<page-meta page-style="overflow: hidden;"></page-meta>
+
+<navigation-bar title="产品" back="{{false}}" color="{{navFrontColor}}" background="{{navBackgroundColor}}"></navigation-bar>
+
+<view class="product-page" style="{{themeStyle}}">
+  <scroll-view class="brand-scroll" scroll-x enhanced show-scrollbar="{{false}}">
+    <view class="brand-row">
+      <view
+        wx:for="{{brands}}"
+        wx:key="id"
+        class="brand-card {{activeBrandId === item.id ? 'brand-card-active' : ''}}"
+        data-id="{{item.id}}"
+        bindtap="switchBrand"
+      >
+        <view class="brand-logo">{{item.logoText}}</view>
+        <text class="brand-name">{{item.name}}</text>
+      </view>
+    </view>
+  </scroll-view>
+
+  <view class="content-row">
+    <scroll-view class="category-column" scroll-y enhanced show-scrollbar="{{false}}" enable-flex>
+      <view
+        wx:for="{{categories}}"
+        wx:key="id"
+        class="category-item {{activeCategoryId === item.id ? 'category-item-active' : ''}}"
+        data-id="{{item.id}}"
+        bindtap="switchCategory"
+      >
+        {{item.name}}
+      </view>
+    </scroll-view>
+
+    <scroll-view class="product-scroll" scroll-y enhanced enable-flex>
+      <view class="brand-bar">产品分类</view>
+      <view wx:if="{{displayProducts.length === 0 && !loading}}" class="empty-card">
+        <text>当前分类暂无商品</text>
+      </view>
+      <view class="product-list">
+        <view
+          wx:for="{{displayProducts}}"
+          wx:key="id"
+          class="product-card"
+          data-id="{{item.id}}"
+          bindtap="openProductDetail"
+        >
+          <image wx:if="{{item.cover}}" class="product-cover" src="{{item.cover}}" mode="aspectFill"></image>
+          <view class="product-body">
+            <text class="product-title">{{item.title}}</text>
+            <text class="product-subtitle">{{item.subtitle || '点击查看详情和规格'}}</text>
+            <text class="product-action">进入详情</text>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+</view>

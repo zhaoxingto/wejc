@@ -1,0 +1,87 @@
+page {
+  background: var(--background-color);
+  color: var(--text-color);
+}
+
+.mine-scroll {
+  height: 100vh;
+}
+
+.mine-shell {
+  padding: 24rpx;
+  padding-bottom: 180rpx;
+  background: var(--background-color);
+  min-height: 100%;
+}
+
+.profile-card,
+.shortcut-card,
+.menu-panel {
+  border-radius: 28rpx;
+  background: var(--surface-color);
+  box-shadow: 0 12rpx 32rpx rgba(106, 74, 42, 0.08);
+}
+
+.profile-card {
+  min-height: 180rpx;
+  padding: 40rpx 28rpx;
+  margin-bottom: 20rpx;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.profile-title {
+  display: block;
+  font-size: 38rpx;
+  font-weight: 700;
+  text-align: center;
+}
+
+.profile-meta {
+  display: block;
+  margin-top: 12rpx;
+  color: var(--text-muted-color);
+  font-size: 24rpx;
+  text-align: center;
+}
+
+.shortcut-card {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8rpx;
+  padding: 24rpx 12rpx;
+  margin-bottom: 20rpx;
+}
+
+.shortcut-item {
+  display: grid;
+  justify-items: center;
+  gap: 12rpx;
+}
+
+.shortcut-icon {
+  width: 74rpx;
+  height: 74rpx;
+  border: 4rpx solid var(--primary-color);
+  border-radius: 18rpx;
+  background: var(--surface-muted-color);
+}
+
+.shortcut-label {
+  font-size: 22rpx;
+  color: var(--text-color);
+  text-align: center;
+}
+
+.menu-panel {
+  padding: 16rpx 0;
+  min-height: 360rpx;
+}
+
+.menu-row {
+  padding: 24rpx 28rpx;
+  font-size: 28rpx;
+  line-height: 1.8;
+  color: var(--text-color);
+}

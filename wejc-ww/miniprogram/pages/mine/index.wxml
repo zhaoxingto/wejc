@@ -1,0 +1,36 @@
+<navigation-bar title="我的" back="{{false}}" color="{{navFrontColor}}" background="{{navBackgroundColor}}"></navigation-bar>
+
+<scroll-view class="mine-scroll" scroll-y style="{{themeStyle}}">
+  <view class="mine-shell">
+    <view class="profile-card">
+      <text class="profile-title">{{userName}}</text>
+      <text class="profile-meta">当前店铺：{{shopName}}</text>
+      <text class="profile-meta">客户编号：{{customerId}}</text>
+    </view>
+
+    <view class="shortcut-card">
+      <view
+        wx:for="{{orderShortcuts}}"
+        wx:key="key"
+        class="shortcut-item"
+        data-key="{{item.key}}"
+        bindtap="handleShortcutTap"
+      >
+        <view class="shortcut-icon"></view>
+        <text class="shortcut-label">{{item.label}}</text>
+      </view>
+    </view>
+
+    <view class="menu-panel">
+      <view
+        wx:for="{{menuItems}}"
+        wx:key="key"
+        class="menu-row"
+        data-key="{{item.key}}"
+        bindtap="handleMenuTap"
+      >
+        <text>{{item.label}}</text>
+      </view>
+    </view>
+  </view>
+</scroll-view>

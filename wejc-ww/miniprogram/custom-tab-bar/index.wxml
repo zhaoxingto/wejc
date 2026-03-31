@@ -1,0 +1,22 @@
+<view
+  class="tabbar-shell"
+  style="background: {{themeColors.surfaceColor}}; box-shadow: 0 16rpx 40rpx rgba(80, 57, 31, 0.16);"
+>
+  <view
+    wx:for="{{tabs}}"
+    wx:key="key"
+    class="tabbar-item {{selected === item.key ? 'tabbar-item-active' : ''}}"
+    data-key="{{item.key}}"
+    data-path="{{item.pagePath}}"
+    bindtap="switchTab"
+    style="{{selected === item.key ? 'background:' + themeColors.primaryColor + ';color:' + themeColors.primaryTextColor : 'color:' + themeColors.textMutedColor}}"
+  >
+    <view
+      class="tabbar-icon"
+      style="{{selected === item.key ? 'background: rgba(255,248,240,0.22); color:' + themeColors.primaryTextColor : 'background:' + themeColors.surfaceMutedColor + '; color:' + themeColors.primaryColor}}"
+    >
+      {{item.text.slice(0, 1)}}
+    </view>
+    <text class="tabbar-text">{{item.text}}</text>
+  </view>
+</view>

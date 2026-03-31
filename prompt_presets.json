@@ -1,0 +1,12 @@
+{
+  "global_prefix": "你必须严格遵守《渠道平台 AI 开发蓝图（完整版）》。如有冲突，先指出冲突，再给出兼容方案。禁止脱离蓝图自由发挥。",
+  "constraints": [
+    "多租户 tenant_id + shop_id",
+    "私域店铺入口 shop_code / scene",
+    "source_product + channel_product 双层商品模型",
+    "SKU 多属性多规格",
+    "无支付，下单即生成订单",
+    "订单异步推送 ERP / 第三方",
+    "API -> Service -> Repository/ORM -> DB 分层"
+  ]
+}
